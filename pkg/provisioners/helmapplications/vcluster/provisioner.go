@@ -19,7 +19,6 @@ package vcluster
 
 import (
 	"context"
-
 	"github.com/prometheus/client_golang/prometheus"
 
 	"github.com/unikorn-cloud/core/pkg/provisioners/application"
@@ -54,4 +53,21 @@ func (*Provisioner) ReleaseName(ctx context.Context) string {
 // New returns a new initialized provisioner object.
 func New(getApplication application.GetterFunc, name string) *application.Provisioner {
 	return application.New(getApplication).WithGenerator(&Provisioner{})
+}
+
+// Generate implements the application.Generator interface.
+func (p *Provisioner) Values(ctx context.Context, version *string) (interface{}, error) {
+	values := map[string]interface{}{
+		"controlPlane": map[string]interface{}{
+			"backingStore": map[string]interface{}{
+				"database": map[string]interface{}{
+					"embedded": map[string]interface{}{
+						"enabled": "true",
+					},
+				},
+			},
+		},
+	}
+
+	return values, nil
 }
